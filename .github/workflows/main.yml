@@ -45,12 +45,21 @@ jobs:
         env:
           CI: true
       # Deploy
-      - name: Deploy aliyun
-        uses: easingthemes/ssh-deploy@v2.0.7
-        env:
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
+        with:
           SSH_PRIVATE_KEY: ${{ env.SERVER_PRIVATE_KEY }}
           ARGS: "-avz --delete"
           SOURCE: "./docs/.vuepress/dist/"
           REMOTE_HOST: ${{ env.SERVER_HOST }}
           REMOTE_USER: ${{ env.USER_NAME }}
-          TARGET: "/www/blog2222"
+          TARGET:  "/www/blog2222"
+      # - name: Deploy aliyun
+      #   uses: easingthemes/ssh-deploy@v2.0.7
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ env.SERVER_PRIVATE_KEY }}
+      #     ARGS: "-avz --delete"
+      #     SOURCE: "./docs/.vuepress/dist/"
+      #     REMOTE_HOST: ${{ env.SERVER_HOST }}
+      #     REMOTE_USER: ${{ env.USER_NAME }}
+      #     TARGET: "/www/blog2222"
