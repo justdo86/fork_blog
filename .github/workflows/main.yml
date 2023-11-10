@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - master
+
+      env:
+SERVER_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }} # 服务器私钥
+    SERVER_HOST: ${{ secrets.HOST }} # 服务器IP地址
+    USER_NAME: ${{ secrets.NAME }} # 服务器用户名
+    cache-name: blog
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,6 +24,21 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
+          #缓存依赖
+            - name: Cache nodemodules
+              uses: actions/cache@v1
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # 需要缓存的文件的路径
+                  path: ./node_modules 
+                  # 对缓存的文件指定的唯一标识
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('./package.json') }} 
+                  # 用于没有再找目标key的缓存的backup选项
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
       # npm install
       - name: npm install and build
         run: |
@@ -28,9 +50,9 @@ jobs:
       - name: Deploy aliyun
         uses: easingthemes/ssh-deploy@v2.0.7
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN }}
+          SSH_PRIVATE_KEY: ${{ env.SERVER_PRIVATE_KEY }}
           ARGS: "-avz --delete"
           SOURCE: "./docs/.vuepress/dist/"
-          REMOTE_HOST: "47.116.12.164"
-          REMOTE_USER: "root"
+          REMOTE_HOST: ${{ env.SERVER_HOST }}
+          REMOTE_USER: ${{ env.USER_NAME }}
           TARGET: "/www/blog2222"
